@@ -1,0 +1,35 @@
+{
+  "model_type": "RandomForestRegressor",
+  "rmse": 4.384044671183986,
+  "r2": 0.8582639841002377,
+  "mae": 3.1480682481597038,
+  "hyperparameters": {
+    "max_depth": 15,
+    "min_samples_leaf": 2,
+    "min_samples_split": 10,
+    "n_estimators": 100
+  },
+  "features": [
+    "lap",
+    "hour",
+    "day_of_week",
+    "day",
+    "month",
+    "is_weekend",
+    "vehicle_encoded",
+    "vehicle_mean_duration",
+    "vehicle_std_duration",
+    "vehicle_trip_count",
+    "time_afternoon",
+    "time_evening_peak",
+    "time_lunch",
+    "time_morning",
+    "time_morning_peak",
+    "time_night"
+  ],
+  "n_features": 16,
+  "training_samples": 3274,
+  "test_samples": 819,
+  "validation_method": "TimeSeriesSplit (5 splits)",
+  "training_date": "2025-12-17 13:12:14"
+}
