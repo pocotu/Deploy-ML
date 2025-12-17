@@ -66,4 +66,4 @@ Objetivo: Comparar algoritmos de ML en problemas reales del transporte publico.
 
 ## Licencia
 
-MIT License - Proyecto academico de codigo abierto
+MIT License
