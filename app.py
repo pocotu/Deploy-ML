@@ -570,6 +570,114 @@ if st.button("Calcular Duracion Estimada", type="primary", use_container_width=T
         </div>
     </div>
     """, unsafe_allow_html=True)
+    
+    # ============== EXPLORADOR DEL ARBOL ==============
+    
+    # Nombres de features
+    feature_names = [
+        'lap', 'hour', 'day_of_week', 'day', 'month', 'is_weekend',
+        'vehicle_encoded', 'vehicle_mean_duration', 'vehicle_std_duration',
+        'vehicle_trip_count', 'time_afternoon', 'time_evening_peak',
+        'time_lunch', 'time_morning', 'time_morning_peak', 'time_night'
+    ]
+    
+    feature_names_es = {
+        'lap': 'Vuelta del dia',
+        'hour': 'Hora',
+        'day_of_week': 'Dia de la semana',
+        'day': 'Dia del mes',
+        'month': 'Mes',
+        'is_weekend': 'Fin de semana',
+        'vehicle_encoded': 'Vehiculo (codificado)',
+        'vehicle_mean_duration': 'Duracion promedio del vehiculo',
+        'vehicle_std_duration': 'Desviacion estandar del vehiculo',
+        'vehicle_trip_count': 'Cantidad de viajes del vehiculo',
+        'time_afternoon': 'Tarde',
+        'time_evening_peak': 'Hora pico PM',
+        'time_lunch': 'Almuerzo',
+        'time_morning': 'Manana',
+        'time_morning_peak': 'Hora pico AM',
+        'time_night': 'Noche'
+    }
+    
+    def trazar_camino(tree, X_scaled, feature_names):
+        """Traza el camino que toma una muestra a traves del arbol"""
+        node_id = 0
+        camino = []
+        
+        while True:
+            feature_idx = tree.feature[node_id]
+            
+            if feature_idx == -2:
+                value = tree.value[node_id][0][0]
+                camino.append({
+                    'node_id': node_id,
+                    'tipo': 'HOJA',
+                    'prediccion': value,
+                    'samples': tree.n_node_samples[node_id]
+                })
+                break
+            
+            threshold = tree.threshold[node_id]
+            feature_name = feature_names[feature_idx]
+            feature_value = X_scaled[0, feature_idx]
+            
+            if feature_value <= threshold:
+                decision = 'SI'
+                next_node = tree.children_left[node_id]
+            else:
+                decision = 'NO'
+                next_node = tree.children_right[node_id]
+            
+            camino.append({
+                'node_id': node_id,
+                'tipo': 'DECISION',
+                'feature': feature_name,
+                'threshold': threshold,
+                'valor_real': feature_value,
+                'decision': decision,
+                'next_node': next_node,
+                'samples': tree.n_node_samples[node_id],
+                'value': tree.value[node_id][0][0]
+            })
+            
+            node_id = next_node
+        
+        return camino
+    
+    # Usar el primer arbol para mostrar el camino
+    num_arbol = 0
+    arbol = modelo.estimators_[num_arbol]
+    tree = arbol.tree_
+    prediccion_arbol = arbol.predict(features_scaled)[0]
+    camino = trazar_camino(tree, features_scaled, feature_names)
+    
+    # Construir HTML del camino
+    nodos_visitados = [str(p['node_id']) for p in camino]
+    camino_html = ' -&gt; '.join(nodos_visitados)
+    
+    # Construir pasos del arbol
+    pasos_html = ""
+    for i, paso in enumerate(camino, 1):
+        if paso['tipo'] == 'HOJA':
+            pasos_html += f"""<p style="margin: 0.5rem 0; padding-left: 1rem; border-left: 3px solid #16a34a;"><strong>Paso {i} - Nodo {paso['node_id']} (HOJA):</strong><br>Prediccion final: {paso['prediccion']:.2f} min<br><span style="color: #64748b; font-size: 0.85rem;">Basado en {paso['samples']} muestras</span></p>"""
+        else:
+            feature_es = feature_names_es.get(paso['feature'], paso['feature'])
+            decision_symbol = '&lt;=' if paso['decision'] == 'SI' else '&gt;'
+            pasos_html += f"""<p style="margin: 0.5rem 0; padding-left: 1rem; border-left: 3px solid #2563eb;"><strong>Paso {i} - Nodo {paso['node_id']}:</strong><br>Condicion: {feature_es} &lt;= {paso['threshold']:.4f}?<br>Valor: {paso['valor_real']:.4f} {decision_symbol} {paso['threshold']:.4f} -&gt; <strong>{paso['decision']}</strong><br><span style="color: #64748b; font-size: 0.85rem;">Siguiente nodo: {paso['next_node']}</span></p>"""
+    
+    # Construir features usadas
+    features_usadas = [p['feature'] for p in camino if p['tipo'] == 'DECISION']
+    features_unicas = list(dict.fromkeys(features_usadas))
+    features_list_html = ""
+    for feat in features_unicas:
+        feat_es = feature_names_es.get(feat, feat)
+        features_list_html += f"<p style='margin: 0.2rem 0;'>- {feat_es}</p>"
+    
+    # Desplegable HTML nativo
+    explorador_html = f"""<details class="model-details"><summary>Explorar arbol de decision</summary><div class="model-info" style="margin-top: 1rem;"><p style="font-weight: 600; margin-bottom: 0.75rem; color: #1e293b;">Predicciones</p><div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;"><p><strong>Random Forest:</strong> {prediccion:.1f} min</p><p><strong>Arbol {num_arbol + 1}:</strong> {prediccion_arbol:.1f} min</p><p><strong>Nodos visitados:</strong> {len(camino)}</p></div><div style="height: 1px; background: #e2e8f0; margin: 1rem 0;"></div><p style="font-weight: 600; margin-bottom: 0.75rem; color: #1e293b;">Camino de Decision</p><p style="font-family: monospace; font-size: 0.9rem; color: #525252; background: #f8fafc; padding: 0.5rem; border-radius: 4px;">{camino_html}</p><div style="height: 1px; background: #e2e8f0; margin: 1rem 0;"></div><p style="font-weight: 600; margin-bottom: 0.75rem; color: #1e293b;">Pasos del Arbol</p>{pasos_html}<div style="height: 1px; background: #e2e8f0; margin: 1rem 0;"></div><p style="font-weight: 600; margin-bottom: 0.75rem; color: #1e293b;">Features Utilizadas</p>{features_list_html}<p style="margin-top: 0.5rem; color: #64748b; font-size: 0.85rem;">Total de decisiones: {len(features_usadas)} | Features unicas: {len(features_unicas)}</p></div></details>"""
+    
+    st.markdown(explorador_html, unsafe_allow_html=True)
 
 # Info del modelo (desplegable HTML nativo)
 st.markdown("""
@@ -607,6 +715,8 @@ st.markdown("""
     </div>
 </details>
 """, unsafe_allow_html=True)
+
+
 
 # Footer
 st.markdown("""
