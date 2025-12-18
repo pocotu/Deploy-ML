@@ -451,12 +451,23 @@ with col2:
         help="Numero de recorrido del vehiculo hoy (1 = primer viaje del dia)"
     )
     
-    hora = st.time_input(
-        "Hora de Salida",
-        value=datetime.now().time(),
-        help="Hora de inicio del viaje"
-    )
+    col_hora, col_min = st.columns(2)
+    with col_hora:
+        hora_num = st.selectbox(
+            "Hora",
+            options=list(range(24)),
+            index=datetime.now().hour,
+            format_func=lambda x: f"{x:02d}:00"
+        )
+    with col_min:
+        minuto_num = st.selectbox(
+            "Minutos",
+            options=[0, 15, 30, 45],
+            index=0,
+            format_func=lambda x: f":{x:02d}"
+        )
 
+hora = datetime.now().time().replace(hour=hora_num, minute=minuto_num)
 fecha_hora = datetime.combine(fecha, hora)
 
 # Divider
@@ -572,7 +583,7 @@ st.markdown("""
             <p><strong>RMSE:</strong> 4.38 min</p>
             <p><strong>Features:</strong> 16 variables</p>
             <p><strong>R2:</strong> 0.858</p>
-            <p><strong>Precision:</strong> 86%</p>
+            <p><strong>Precision:</strong> 96.8% (±10 min)</p>
         </div>
     </div>
 </details>
