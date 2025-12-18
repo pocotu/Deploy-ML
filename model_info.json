@@ -1,13 +1,13 @@
 {
   "model_type": "RandomForestRegressor",
-  "rmse": 4.384044671183986,
-  "r2": 0.8582639841002377,
-  "mae": 3.1480682481597038,
+  "rmse": 4.37184054050478,
+  "r2": 0.8590520040060298,
+  "mae": 3.1490716983992866,
   "hyperparameters": {
-    "max_depth": 15,
-    "min_samples_leaf": 2,
-    "min_samples_split": 10,
-    "n_estimators": 100
+    "max_depth": 10,
+    "min_samples_leaf": 4,
+    "min_samples_split": 15,
+    "n_estimators": 150
   },
   "features": [
     "lap",
@@ -31,5 +31,5 @@
   "training_samples": 3274,
   "test_samples": 819,
   "validation_method": "TimeSeriesSplit (5 splits)",
-  "training_date": "2025-12-17 13:12:14"
+  "training_date": "2025-12-18 10:41:51"
 }
