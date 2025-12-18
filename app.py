@@ -521,8 +521,8 @@ if st.button("Calcular Duracion Estimada", type="primary", use_container_width=T
     
     # Formato legible
     tiempo_fmt = formato_tiempo(prediccion)
-    min_fmt = formato_tiempo(max(0, prediccion - 4.4))
-    max_fmt = formato_tiempo(prediccion + 4.4)
+    min_fmt = formato_tiempo(max(0, prediccion - 4.37))
+    max_fmt = formato_tiempo(prediccion + 4.37)
     
     # Resultado principal
     st.markdown(f"""
@@ -577,13 +577,32 @@ st.markdown("""
 <details class="model-details">
     <summary>Ver informacion del modelo</summary>
     <div class="model-info" style="margin-top: 1rem;">
+        <p style="font-weight: 600; margin-bottom: 0.75rem; color: #1e293b;">Metricas de Rendimiento</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <p><strong>RMSE:</strong> 4.37 min</p>
+            <p><strong>MAE:</strong> 3.15 min</p>
+            <p><strong>R²:</strong> 0.859 (85.9%)</p>
+            <p><strong>Precision (±10 min):</strong> 96.7%</p>
+            <p><strong>CV RMSE:</strong> 4.79 ± 0.38 min</p>
+            <p><strong>Ratio Test/Train:</strong> 1.14</p>
+        </div>
+        <div style="height: 1px; background: #e2e8f0; margin: 1rem 0;"></div>
+        <p style="font-weight: 600; margin-bottom: 0.75rem; color: #1e293b;">Configuracion del Modelo</p>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
             <p><strong>Algoritmo:</strong> Random Forest</p>
-            <p><strong>Validacion:</strong> TimeSeriesSplit</p>
-            <p><strong>RMSE:</strong> 4.38 min</p>
+            <p><strong>n_estimators:</strong> 150</p>
+            <p><strong>max_depth:</strong> 10</p>
+            <p><strong>min_samples_split:</strong> 15</p>
+            <p><strong>min_samples_leaf:</strong> 4</p>
             <p><strong>Features:</strong> 16 variables</p>
-            <p><strong>R2:</strong> 0.858</p>
-            <p><strong>Precision:</strong> 96.8% (±10 min)</p>
+        </div>
+        <div style="height: 1px; background: #e2e8f0; margin: 1rem 0;"></div>
+        <p style="font-weight: 600; margin-bottom: 0.75rem; color: #1e293b;">Datos de Entrenamiento</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <p><strong>Train:</strong> 3,274 registros</p>
+            <p><strong>Test:</strong> 819 registros</p>
+            <p><strong>Validacion:</strong> TimeSeriesSplit (5 folds)</p>
+            <p><strong>Vehiculos:</strong> 45 unidades</p>
         </div>
     </div>
 </details>
